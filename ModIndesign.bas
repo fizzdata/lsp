@@ -1161,7 +1161,7 @@ End Sub
 Sub NewBuildLayout()
 
 '    If Unplaced_AdsYesNo() = False Then Exit Sub
-    'Version 3.0
+    'Version 3.2
     checkTags = False
     Set processedLayers = New Collection
     Set processedTags = New Collection
@@ -1188,7 +1188,7 @@ Sub NewBuildLayout()
 
     Dim iDA   ' As InDesign.Application
     Dim iDDoc   ' As InDesign.Document
-    Dim iDPage    'As InDesign.Page
+    Dim iDPage    'As InDesign.Page 
     Dim idColor    'As InDesign.Color
     Dim iDRectangle    ' As InDesign.Rectangle
     Dim myY1, myX1, myY2, myX2    'geometric bounds for rectangle
@@ -1217,7 +1217,7 @@ Sub NewBuildLayout()
     End If
     If DirExists("C:\regkey") = False Then
         MkDir "C:\regkey"
-        MsgBox "regkey created successfully!"
+        errMsg = errMsg & vbCrLf & "info: C:\regkey folder created!"
     End If
 
     Dim dHbleed As Double, dVbleed As Double    'za bleed
@@ -1317,15 +1317,36 @@ Sub NewBuildLayout()
     Dim oneFileFeature As Boolean
     Dim FirstPage As Long
     Dim LastPage As Long
+    Dim TargetFile As String
 
-    oneFileFeature = True
-
+    ' Ensure the sheet and range exist
+    On Error Resume Next
+    TargetFile = ThisWorkbook.Sheets("Additional_settings").Range("TargetFile").value
+    On Error GoTo 0
+    
+    ' Check if the value is valid and not empty
+    If Not IsError(TargetFile) Then
+        If Len(Trim(CStr(TargetFile))) > 0 Then
+            oneFileFeature = True
+        Else
+            oneFileFeature = False
+        End If
+    Else
+        errMsg = errMsg & vbCrLf & "-Error: TargetFile range is invalid or doesn't exist."
+    End If
 
     idalerts = iDA.ScriptPreferences.UserInteractionLevel
     iDA.ScriptPreferences.UserInteractionLevel = 1699640946    'idUserInteractionLevels.idNeverInteract
     ' iDA.ScriptPreferences.EnableRedraw = False
     'iDA.Visible = True
     Set iDDoc = iDA.Open(Range("IndesignTemplate").value)
+
+    If oneFileFeature = True Then
+         Set iDDoc = iDA.Open(TargetFile)' destination file
+         Set FirstTemplate = iDA.Open(Range("IndesignTemplate").value)
+
+        'iDDestonation = iDA.ActiveDocument
+    End If
 
 
     '???============= Combining 2 files =================???
@@ -1335,7 +1356,29 @@ Sub NewBuildLayout()
 
         Dim second_template As Variant
 
-        second_template = ThisWorkbook.Sheets("Additional_settings").Range("b14").value
+        If oneFileFeature = true then
+
+                ' Open the second document
+                Set doc1 = iDA.Open(FirstTemplate)
+        
+                ' Loop through layers in the First document
+            For Each layer In doc1.Layers
+                ' Create a new layer in the Main document with the layers name
+                Set newLayer = iDDoc.Layers.Add
+                newLayer.Name = layer.Name
+                
+                ' Loop through page items in the current layer
+                For Each item In layer.pageItems
+                    ' Duplicate item to the new layer in the main document
+                    Set newItem = item.Duplicate(newLayer)
+                Next item
+            Next layer
+
+    End If 'oneFileFeature = True
+
+        ' Get the second template path from the sheet
+
+        second_template = ThisWorkbook.Sheets("Additional_settings").Range("d2").value
 
         ' Open the second document
         Set doc2 = iDA.Open(second_template)
@@ -1368,22 +1411,21 @@ Sub NewBuildLayout()
 
     If oneFileFeature = True then
         currentPageCount = iDDoc.Pages.Count
+ 
+        ' Add missing pages until lMaxPages is reached
+        If currentPageCount < lMaxPages Then
+            For x = currentPageCount + 1 To lMaxPages
+                iDDoc.Pages.Add 1701733408 ' idAtEnd
+                Application.StatusBar = "Adding pages to InDesign: " & x & " of " & lMaxPages
+            Next x
+        End If
 
-    ' Add missing pages until lMaxPages is reached
-    If currentPageCount < lMaxPages Then
-        For x = currentPageCount + 1 To lMaxPages
-            iDDoc.Pages.Add 1701733408 ' idAtEnd
+    Else 'if oneFileFeature = False then
+        
+        For x = lMinPage To lMaxPages
+            iDDoc.Pages.Add 1701733408    'idAtEnd
             Application.StatusBar = "Adding pages to InDesign: " & x & " of " & lMaxPages
         Next x
-    End If
-
-    Else 'oneFileFeature = False
-        
-
-    For x = lMinPage To lMaxPages
-        iDDoc.Pages.Add 1701733408    'idAtEnd
-        Application.StatusBar = "Adding pages to InDesign: " & x & " of " & lMaxPages
-    Next x
 
     End If
 
@@ -1405,7 +1447,7 @@ Sub NewBuildLayout()
     articleColor = ThisWorkbook.Sheets("Additional_settings").Range("b7").Interior.Color
 
     If articleColor = 0 Then
-        ErrMsg = ErrMsg & vbCrLf & "-Error: The Article Color have no fill."
+        errMsg = errMsg & vbCrLf & "-Error: The Article Color have no fill."
     End If
 
     ' Add a New layer To the document
@@ -1433,7 +1475,7 @@ Sub NewBuildLayout()
         FirstPage = lMinPage
         LastPage = lMaxPages
 
-    Else
+    Else 'if oneFileFeature = False then
         FirstPage = 2
         LastPage = lNoOfPages + 1
     End If
@@ -1475,7 +1517,7 @@ Sub NewBuildLayout()
                                 
                                 If Err.Number <> 0 Then
                                     ' Show a message about the corrupted file
-                                    ErrMsg = ErrMsg & vbCrLf & "-Error: " & sFile & " is a corrupted file."
+                                    errMsg = errMsg & vbCrLf & "-Error: " & sFile & " is a corrupted file."
                                     Err.Clear ' Clear the error to avoid interference later
                                 End If
                                 
@@ -1635,7 +1677,7 @@ Sub NewBuildLayout()
                         Next j
                     ElseIf checkTags = True And LayerProcessed = False Then 'If layer dosnt exsist, chck For xml Tag
 
-                        ErrMsg = ErrMsg & vbCrLf & "-Error: Layer " & elementName & " was Not found."
+                        errMsg = errMsg & vbCrLf & "-Error: Layer " & elementName & " was Not found."
 
                         '???========================= LAYER END | XML TAG BEGIN =====================================???
 
@@ -1767,7 +1809,7 @@ Sub NewBuildLayout()
 
                     'Debug.Print "Tag '" & elementName & "' DOES exist."
                 Else
-                    ErrMsg = ErrMsg & vbCrLf & "-Error: Tag Or Layer '" & elementName & "' does Not exist."
+                    errMsg = errMsg & vbCrLf & "-Error: Tag Or Layer '" & elementName & "' does Not exist."
                     'Exit Sub
                 End If
             End If 'If is Not an Article
@@ -1791,15 +1833,29 @@ Next p
     iDA.ScriptPreferences.UserInteractionLevel = idalerts
     Application.StatusBar = "Saving InDesign file"
 '    sIssue = ThisWorkbook.Worksheets("Main List").Range("CurrentIssue").value
+
+If oneFileFeature = True Then
+    If iDDoc.Saved Then
+        ' Save directly to the existing file path
+        iDDoc.save
+    Else
+        ' Force save without triggering Save As dialog
+        iDDoc.save TargetFile
+    End If
+    
+    errMsg = errMsg & vbCrLf & "-Info: oneFileFeature is on and your file was saved to " & TargetFile
+
+Else
+
     sIssue = GetCurrentIssue
     iDDoc.save ThisWorkbook.Path & "\issue " & sIssue & "-" & Format(Now, "yy-mm-dd-hh-nn") & ".indd"
-    
+End If
 
     ' iDDoc.Windows.Add 'dodaje prozor, tj pokazuje skriveni dokument
     'iDDoc.Close idSaveOptions.idNo
     Application.StatusBar = "Done"
     ThisWorkbook.Activate
-    MsgBox "Done for: " & sw.EndTimer / 1000 & " seconds." & vbCrLF & ErrMsg
+    MsgBox "Done for: " & sw.EndTimer / 1000 & " seconds." & vbCrLF & errMsg
 
 End Sub
 Function GetPositionsRedni(rSout As Range, rSearchIn As Range) As Long 'vraca od 1 do 8
