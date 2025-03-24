@@ -1332,7 +1332,7 @@ Sub NewBuildLayout()
             oneFileFeature = False
         End If
     Else
-        errMsg = errMsg & vbCrLf & "-Error: TargetFile range is invalid or doesn't exist."
+        MsgBox "'TargetFile' range is invalid or doesn't exist.",,"Error"  
     End If
 
     idalerts = iDA.ScriptPreferences.UserInteractionLevel
@@ -1818,14 +1818,18 @@ Sub NewBuildLayout()
                                     'Debug.Print cPUnits(x).Count
     Next x
 
-' Loop through all the pages in the document and delete extra pages
-For p = iDDoc.Pages.count To 1 Step -1 ' Loop backwards To avoid skipping pages
-    ' If the page index is greater than Or equal To deleteAfter
-    If p > lNoOfPages Then
+Dim maxpage As Integer
+maxpage = lNoOfPages + 1 
+
+For p = iDDoc.Pages.count To 1 Step -1
+    Debug.Print "Checking page: " & p
+    ' Only delete pages strictly greater than lNoOfPages
+    If p > maxpage Then
+        Debug.Print "maxpage is " maxpage & " Deleting page: " & p
         iDDoc.Pages(p).Delete
     End If
 Next p
-    
+        
     'vrati jedinice mere
     iDDoc.ViewPreferences.HorizontalMeasurementUnits = idunitsHOR
     iDDoc.ViewPreferences.VerticalMeasurementUnits = idunitsVER
