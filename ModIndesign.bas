@@ -142,7 +142,7 @@ Sub MyDeletePages()
         lActivePage = 0
     End If
     
-    NoOfPages = CInt(ThisWorkbook.Sheets("Settings").Range("B11"))
+    NoOfPages = CInt(ThisWorkbook.Sheets("NewLayout").Range("U1"))
     If NoOfPages = 0 Then Exit Sub
     
     frmDelPages.Show (vbModal)
@@ -454,7 +454,7 @@ If IDP Then Exit Sub
         lActivePage = 0
     End If
     
-    NoOfPages = CInt(ThisWorkbook.Sheets("Settings").Range("B11"))
+    NoOfPages = CInt(ThisWorkbook.Sheets("NewLayout").Range("U1"))
     If NoOfPages = 0 Then Exit Sub
     
     Load frmAddPages
@@ -932,7 +932,7 @@ Attribute CheckPages.VB_ProcData.VB_Invoke_Func = "c\n14"
     
     fDrawPageOne = LCase(ThisWorkbook.Sheets("additional_Settings").Range("Assign_Ads_in_Page_1")) = "yes"
     lMinPages = IIf(fDrawPageOne, 1, 2)
-    lMaxPages = ThisWorkbook.Sheets("Settings").Range("B11").value
+    lMaxPages = ThisWorkbook.Sheets("NewLayout").Range("U1").value
 '    lMinPages = 2
 '    lMaxPages = UBound(PagesArr)
 '    If lMinPages < 2 Then lMinPages = 2
@@ -1231,7 +1231,7 @@ Sub NewBuildLayout()
         lMaxPages = ThisWorkbook.Sheets("Settings").Range("BOO").value
     Else
         lMinPage = 2
-        lMaxPages = ThisWorkbook.Sheets("Settings").Range("B11").value
+        lMaxPages = ThisWorkbook.Sheets("NewLayout").Range("U1").value
     End If
 
     'add dummy pages at 1, to keep counters sinhronized. It was needed when Yaakov asked for removing of first page
@@ -1822,7 +1822,7 @@ Dim maxpage As Integer
 maxpage = lNoOfPages + 1 
 
 For p = iDDoc.Pages.count To 1 Step -1
-    Debug.Print "Checking page: " & p
+    Debug.Print "maxpage is " maxpage & " Checking page: " & p
     ' Only delete pages strictly greater than lNoOfPages
     If p > maxpage Then
         Debug.Print "maxpage is " maxpage & " Deleting page: " & p
