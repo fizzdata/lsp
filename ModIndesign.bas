@@ -1818,7 +1818,7 @@ Sub NewBuildLayout()
             End If 'If is Not an Article
 
         Next Y
-                                    Debug.Print cPUnits(x).Count
+                                   ' Debug.Print cPUnits(x).Count
     Next x
 
 Dim maxpage As Integer
