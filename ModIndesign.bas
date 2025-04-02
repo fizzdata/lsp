@@ -1480,10 +1480,13 @@ Sub NewBuildLayout()
         LastPage = lNoOfPages + 1
     End If
 
-    For x = FirstPage To LastPage + 1
-        Application.StatusBar = "Creating boxes for page: " & x & " (of " & lNoOfPages & ")"
+    For x = FirstPage To LastPage
+        Application.StatusBar = "Creating boxes for page: " & x & " (of " & LastPage & ")"
         Set iDPage = iDDoc.Pages(x)
         For Y = 1 To cPUnits(x).count
+
+            Debug.Print "Page " & x & " has: " & cPUnits(x).count & " units. working on unit: " & Y
+
             Set vc = cPUnits(x).item(Y)
             myY1 = cpUnitsPositions(x).item(Y)(1)
             myY2 = myY1 + cPUnitsSizes(x).item(Y)(4)
@@ -1815,7 +1818,7 @@ Sub NewBuildLayout()
             End If 'If is Not an Article
 
         Next Y
-                                    'Debug.Print cPUnits(x).Count
+                                    Debug.Print cPUnits(x).Count
     Next x
 
 Dim maxpage As Integer
