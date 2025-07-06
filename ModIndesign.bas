@@ -244,9 +244,9 @@ lRow = GetLastRow(ws)
 '    gNeedRedraw = True
 ' End If
 'End If
- maxPage = Application.WorksheetFunction.Max(ws.Range("G2:G" & lRow))
- If ThisWorkbook.Worksheets("Settings").Range("MaxNoPages").value <> maxPage Then
-    ThisWorkbook.Worksheets("Settings").Range("MaxNoPages").value = maxPage
+ maxpage = Application.WorksheetFunction.Max(ws.Range("G2:G" & lRow))
+ If ThisWorkbook.Worksheets("Settings").Range("MaxNoPages").value <> maxpage Then
+    ThisWorkbook.Worksheets("Settings").Range("MaxNoPages").value = maxpage
  End If
  'Application.StatusBar = "Rechecking Pages ..."
 'CheckPages
@@ -457,7 +457,7 @@ If IDP Then Exit Sub
     NoOfPages = CInt(ThisWorkbook.Sheets("NewLayout").Range("U1"))
     If NoOfPages = 0 Then Exit Sub
     
-    Load frmAddPages
+    load frmAddPages
     frmAddPages.SetPageAfter (IIf(lActivePage = 0, 1, lActivePage))
     frmAddPages.Show (vbModal)
     If frmAddPages.GetRetVal <> 1 Then
@@ -539,9 +539,9 @@ lRow = GetLastRow(ws)
 ''       gNeedRedraw = True
 ''    End If
 '' End If
- maxPage = Application.WorksheetFunction.Max(ws.Range("G2:G" & lRow))
- If ThisWorkbook.Worksheets("Settings").Range("MaxNoPages").value <> maxPage Then
-    ThisWorkbook.Worksheets("Settings").Range("MaxNoPages").value = maxPage
+ maxpage = Application.WorksheetFunction.Max(ws.Range("G2:G" & lRow))
+ If ThisWorkbook.Worksheets("Settings").Range("MaxNoPages").value <> maxpage Then
+    ThisWorkbook.Worksheets("Settings").Range("MaxNoPages").value = maxpage
  End If
 ' Application.StatusBar = "Rechecking Pages ..."
 'CheckPages
@@ -628,7 +628,7 @@ With ChTemp.Parent
 .Width = PicTemp.Width + 8
 .Height = PicTemp.Height + 8
 End With
-ChTemp.Export fileName:="c:\Users\shonius\Documents\Rad\Elance\2013-06-25  Excel to Indesign4\Numbers.jpg", FilterName:="jpg"
+ChTemp.Export filename:="c:\Users\shonius\Documents\Rad\Elance\2013-06-25  Excel to Indesign4\Numbers.jpg", FilterName:="jpg"
 'UserForm1.Image1.Picture = LoadPicture(FName)
 'Kill FName
 Application.DisplayAlerts = False
@@ -1188,7 +1188,7 @@ Sub NewBuildLayout()
 
     Dim iDA   ' As InDesign.Application
     Dim iDDoc   ' As InDesign.Document
-    Dim iDPage    'As InDesign.Page 
+    Dim iDPage    'As InDesign.Page
     Dim idColor    'As InDesign.Color
     Dim iDRectangle    ' As InDesign.Rectangle
     Dim myY1, myX1, myY2, myX2    'geometric bounds for rectangle
@@ -1276,7 +1276,7 @@ Sub NewBuildLayout()
             aSize(4) = GetSizes(aSize(2), aSize(1))(2)
             'pokupi ime reklame
             aSize(7) = r2.Cells(1).value
-            If Right(aSize(7), 1) = " " Then ' second age of SPREAD
+            If Right(aSize(7), 1) = " " Then ' second page of SPREAD
                 aSize(5) = prevPageComment
             Else
                 aSize(5) = GetPathFromComment(r2)
@@ -1332,7 +1332,7 @@ Sub NewBuildLayout()
             oneFileFeature = False
         End If
     Else
-        MsgBox "'TargetFile' range is invalid or doesn't exist.",,"Error"  
+        MsgBox "'TargetFile' range is invalid or doesn't exist.", , "Error"
     End If
 
     idalerts = iDA.ScriptPreferences.UserInteractionLevel
@@ -1342,7 +1342,7 @@ Sub NewBuildLayout()
     Set iDDoc = iDA.Open(Range("IndesignTemplate").value)
 
     If oneFileFeature = True Then
-         Set iDDoc = iDA.Open(TargetFile)' destination file
+         Set iDDoc = iDA.Open(TargetFile) ' destination file
          Set FirstTemplate = iDA.Open(Range("IndesignTemplate").value)
 
         'iDDestonation = iDA.ActiveDocument
@@ -1356,7 +1356,7 @@ Sub NewBuildLayout()
 
         Dim second_template As Variant
 
-        If oneFileFeature = true then
+        If oneFileFeature = True Then
 
                 ' Open the second document
                 Set doc1 = iDA.Open(FirstTemplate)
@@ -1409,8 +1409,8 @@ Sub NewBuildLayout()
 
     Application.StatusBar = "Adding pages to InDesign"
 
-    If oneFileFeature = True then
-        currentPageCount = iDDoc.Pages.Count
+    If oneFileFeature = True Then
+        currentPageCount = iDDoc.Pages.count
  
         ' Add missing pages until lMaxPages is reached
         If currentPageCount < lMaxPages Then
@@ -1477,24 +1477,26 @@ Sub NewBuildLayout()
 
     Else 'if oneFileFeature = False then
         FirstPage = 2
-        LastPage = lNoOfPages + 1
+        LastPage = lNoOfPages
     End If
-
-    For x = FirstPage To LastPage
+        
+        Debug.Print "first Page: " & FirstPage & " last page: " & LastPage
+    For x = FirstPage To LastPage + 1
         Application.StatusBar = "Creating boxes for page: " & x & " (of " & LastPage & ")"
         Set iDPage = iDDoc.Pages(x)
-        For Y = 1 To cPUnits(x).count
+        z = x - FirstPage + 2
+        For Y = 1 To cPUnits(z).count
+            Set vc = cPUnits(z).item(Y)
+            myY1 = cpUnitsPositions(z).item(Y)(1)
+            myY2 = myY1 + cPUnitsSizes(z).item(Y)(4)
 
-            Debug.Print "Page " & x & " has: " & cPUnits(x).count & " units. working on unit: " & Y
-
-            Set vc = cPUnits(x).item(Y)
-            myY1 = cpUnitsPositions(x).item(Y)(1)
-            myY2 = myY1 + cPUnitsSizes(x).item(Y)(4)
-
-            myX1 = cpUnitsPositions(x).item(Y)(2)
-            myX2 = myX1 + cPUnitsSizes(x).item(Y)(3)
-            sFile = cPUnitsSizes(x).item(Y)(5)
-            sTempFile = cPUnitsSizes(x).item(Y)(7)
+            myX1 = cpUnitsPositions(z).item(Y)(2)
+            myX2 = myX1 + cPUnitsSizes(z).item(Y)(3)
+            sFile = cPUnitsSizes(z).item(Y)(5)
+            sTempFile = cPUnitsSizes(z).item(Y)(7)
+            
+            Debug.Print "indsign and excel page: " & x & " page index: " & z & " ad name: " & sTempFile & " src: " & sFile
+            
 
 
             ' Get current cell color
@@ -1818,21 +1820,24 @@ Sub NewBuildLayout()
             End If 'If is Not an Article
 
         Next Y
-                                   ' Debug.Print cPUnits(x).Count
+                                    'Debug.Print cPUnits(x).Count
     Next x
 
 Dim maxpage As Integer
-maxpage = lNoOfPages + 1 
 
-For p = iDDoc.Pages.count To 1 Step -1
-    Debug.Print "maxpage is " maxpage & " Checking page: " & p
-    ' Only delete pages strictly greater than lNoOfPages
-    If p > maxpage Then
-        Debug.Print "maxpage is " maxpage & " Deleting page: " & p
-        iDDoc.Pages(p).Delete
-    End If
-Next p
+ maxpage = lNoOfPages + 1
+If oneFileFeature = False Then
+
+    For p = iDDoc.Pages.count To 1 Step -1
+        Debug.Print "maxpage is "; maxpage & " Checking page: " & p
+        ' Only delete pages strictly greater than lNoOfPages
+        If p > maxpage Then
+            Debug.Print "maxpage is "; maxpage & " Deleting page: " & p
+            iDDoc.Pages(p).Delete
+        End If
+    Next p
         
+End If
     'vrati jedinice mere
     iDDoc.ViewPreferences.HorizontalMeasurementUnits = idunitsHOR
     iDDoc.ViewPreferences.VerticalMeasurementUnits = idunitsVER
@@ -1855,14 +1860,14 @@ If oneFileFeature = True Then
 Else
 
     sIssue = GetCurrentIssue
-    iDDoc.save ThisWorkbook.Path & "\issue " & sIssue & "-" & Format(Now, "yy-mm-dd-hh-nn") & ".indd"
+    iDDoc.save ThisWorkbook.path & "\issue " & sIssue & "-" & Format(Now, "yy-mm-dd-hh-nn") & ".indd"
 End If
 
     ' iDDoc.Windows.Add 'dodaje prozor, tj pokazuje skriveni dokument
     'iDDoc.Close idSaveOptions.idNo
     Application.StatusBar = "Done"
     ThisWorkbook.Activate
-    MsgBox "Done for: " & sw.EndTimer / 1000 & " seconds." & vbCrLF & errMsg
+    MsgBox "Done for: " & sw.EndTimer / 1000 & " seconds." & vbCrLf & errMsg
 
 End Sub
 Function GetPositionsRedni(rSout As Range, rSearchIn As Range) As Long 'vraca od 1 do 8
@@ -1995,7 +2000,7 @@ Public Sub MarkLastPage()
 '    End If
 '    lPages = Range("MaxNoPages").Value
 
-    lPages = ThisWorkbook.Sheets("Settings").Range("P11").value
+    lPages = ThisWorkbook.Sheets("NewLayout").Range("U1").value
 
 '    If lPages < 2 Or lPages > UBound(PagesArr) Then
 '        lPages = UBound(PagesArr)
