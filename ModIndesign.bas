@@ -1481,7 +1481,7 @@ Sub NewBuildLayout()
     End If
         
         Debug.Print "first Page: " & FirstPage & " last page: " & LastPage
-    For x = FirstPage To LastPage + 1
+    For x = FirstPage To LastPage 
         Application.StatusBar = "Creating boxes for page: " & x & " (of " & LastPage & ")"
         Set iDPage = iDDoc.Pages(x)
         z = x - FirstPage + 2
@@ -1851,7 +1851,7 @@ If oneFileFeature = True Then
         ' Save directly to the existing file path
         iDDoc.save
     Else
-        ' Force save without triggering Save As dialog
+        ' Force save without triggering Save As msg
         iDDoc.save TargetFile
     End If
     
