@@ -1516,7 +1516,7 @@ Sub NewBuildLayout()
             ' Get current cell color
             currentColor = vc.Interior.Color
 
-            If currentColor <> articleColor Then 'If is Not an Article
+            If currentColor <> articleColor And sFile <> "" Then 'If is Not an Article
             
                 Set iDRectangle = iDPage.Rectangles.Add
                 iDRectangle.GeometricBounds = Array(CDbl(myY1), CDbl(myX1), CDbl(myY2), CDbl(myX2))
