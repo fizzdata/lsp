@@ -1202,6 +1202,9 @@ Sub NewBuildLayout()
     Dim bOddPage As Boolean    '?
     Dim bCS3fix As Boolean    'do not empty frames if cs3fix is active
     Dim errMsg As String ' Concatanate string to store error messages
+
+    Dim fullText As String 'for articals name
+    Dim firstLine As String 'for articals name
     
     
     BuildNames ' added by Hussam
@@ -1275,7 +1278,18 @@ Sub NewBuildLayout()
             aSize(3) = GetSizes(aSize(2), aSize(1))(1)
             aSize(4) = GetSizes(aSize(2), aSize(1))(2)
             'pokupi ime reklame
-            aSize(7) = r2.Cells(1).value
+            
+
+            fullText = Trim(r2.Cells(1).Text) ' get full text
+
+            If Len(fullText) > 0 Then
+                firstLine = Split(fullText, vbLf)(0) ' extrect first line
+            Else
+                firstLine = ""
+            End If
+
+            aSize(7) = firstLine
+
             If Right(aSize(7), 1) = " " Then ' second page of SPREAD
                 aSize(5) = prevPageComment
             Else
@@ -1473,11 +1487,11 @@ Sub NewBuildLayout()
     If oneFileFeature = True Then
 
         FirstPage = lMinPage
-        LastPage = lMaxPages
+        LastPage = lMaxPages 
 
     Else 'if oneFileFeature = False then
         FirstPage = 2
-        LastPage = lNoOfPages
+        LastPage = lNoOfPages + 1
     End If
         
         Debug.Print "first Page: " & FirstPage & " last page: " & LastPage
