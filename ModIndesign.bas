@@ -1498,8 +1498,31 @@ Sub NewBuildLayout()
     For x = FirstPage To LastPage 
         Application.StatusBar = "Creating boxes for page: " & x & " (of " & LastPage & ")"
         Set iDPage = iDDoc.Pages(x)
+
+         Dim pageChecked As Boolean
+        pageChecked = False
+        
         z = x - FirstPage + 2
         For Y = 1 To cPUnits(z).count
+                
+             If Not pageChecked Then 'check if page has old content
+                If iDPage.Rectangles.count > 0 Then
+                    Dim userResponse As VbMsgBoxResult
+                    userResponse = MsgBox("Page " & x & " already has content. Do you wish to overwrite it?", vbYesNo + vbQuestion, "Confirm Overwrite")
+            
+                    If userResponse = vbNo Then
+                        Debug.Print "Skipped page " & x
+                        Exit For ' Skip the rest of the rectangles for this page
+                    Else
+                        ' Clear all existing rectangles on the page
+                        Do While iDPage.Rectangles.count > 0
+                            iDPage.Rectangles(1).Delete
+                        Loop
+                    End If
+                End If
+                pageChecked = True ' Mark that we've already checked this page
+            End If
+            ' Create a rectangle for each unit
             Set vc = cPUnits(z).item(Y)
             myY1 = cpUnitsPositions(z).item(Y)(1)
             myY2 = myY1 + cPUnitsSizes(z).item(Y)(4)
@@ -1532,8 +1555,11 @@ Sub NewBuildLayout()
                     If Len(sFile) > 0 And DirU(sFile) <> "" Then
                         If getExt(sFile) <> "indd" Then
                             On Error Resume Next ' Allow errors without breaking the program
-                                iDRectangle.place sFile ' Try placing the file
-                                
+                                                      
+                                  
+                                        ' Page is empty — just place the file
+                                        iDRectangle.place sFile
+
                                 If Err.Number <> 0 Then
                                     ' Show a message about the corrupted file
                                     errMsg = errMsg & vbCrLf & "-Error: " & sFile & " is a corrupted file."
