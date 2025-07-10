@@ -1506,17 +1506,22 @@ Sub NewBuildLayout()
         For Y = 1 To cPUnits(z).count
                 
              If Not pageChecked Then 'check if page has old content
-                If iDPage.Rectangles.count > 0 Then
+               If iDPage.Rectangles.Count > 0 Or iDPage.TextFrames.Count > 0 Then
                     Dim userResponse As VbMsgBoxResult
                     userResponse = MsgBox("Page " & x & " already has content. Do you wish to overwrite it?", vbYesNo + vbQuestion, "Confirm Overwrite")
-            
+
                     If userResponse = vbNo Then
                         Debug.Print "Skipped page " & x
-                        Exit For ' Skip the rest of the rectangles for this page
+                        Exit For
                     Else
-                        ' Clear all existing rectangles on the page
-                        Do While iDPage.Rectangles.count > 0
+                        ' Delete all rectangles
+                        Do While iDPage.Rectangles.Count > 0
                             iDPage.Rectangles(1).Delete
+                        Loop
+
+                        ' Delete all text frames
+                        Do While iDPage.TextFrames.Count > 0
+                            iDPage.TextFrames(1).Delete
                         Loop
                     End If
                 End If
