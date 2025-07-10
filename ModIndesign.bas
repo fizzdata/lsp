@@ -1540,7 +1540,10 @@ Sub NewBuildLayout()
             currentColor = vc.Interior.Color
 
             If currentColor <> articleColor And sFile <> "" Then 'If is Not an Article and have a ad
-            
+                
+                'set lsp to active layer
+                iDDoc.ActiveLayer = LSPLayer
+
                 Set iDRectangle = iDPage.Rectangles.Add
                 iDRectangle.GeometricBounds = Array(CDbl(myY1), CDbl(myX1), CDbl(myY2), CDbl(myX2))
     '            If ThisWorkbook.Worksheets("Settings").Range("BlackBorder").Value = "Yes" Then
@@ -1556,7 +1559,7 @@ Sub NewBuildLayout()
                         If getExt(sFile) <> "indd" Then
                             On Error Resume Next ' Allow errors without breaking the program
                                                       
-                                  
+                                        iDDoc.ActiveLayer = LSPLayer
                                         ' Page is empty — just place the file
                                         iDRectangle.place sFile
 
