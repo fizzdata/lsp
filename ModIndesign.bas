@@ -1499,34 +1499,60 @@ Sub NewBuildLayout()
         Application.StatusBar = "Creating boxes for page: " & x & " (of " & LastPage & ")"
         Set iDPage = iDDoc.Pages(x)
 
-         Dim pageChecked As Boolean
-        pageChecked = False
-        
+        ' Check if the page already has content on the LSP layer
+        if oneFileFeature = True Then
+                        ' If the page already exists in the document, check for existing content on the LSP
+                            layerExists = False
+                        For i = 1 To iDDoc.Layers.Count
+                            If iDDoc.Layers.Item(i).Name = LSPLayer Then
+                                Set targetLayer = iDDoc.Layers.Item(i)
+                                layerExists = True
+                                Exit For
+                            End If
+                        Next
+
+                        If layerExists Then
+                            Dim hasLayerItems As Boolean
+                            hasLayerItems = False
+
+                            For Each item In iDPage.AllPageItems
+                                If item.ItemLayer.Name = LSPLayer Then
+                                    hasLayerItems = True
+                                    Exit For
+                                End If
+                            Next
+
+                            If hasLayerItems Then
+                                userResponse = MsgBox("Page " & x & " has content on layer '" & LSPLayer & "'. Do you wish to overwrite it?", vbYesNo + vbQuestion, "Confirm Overwrite")
+                                If userResponse = vbNo Then
+                                    Debug.Print "Skipped page " & x
+                                    GoTo NextPage
+                                Else
+                                    Dim deletableIndexes As Collection
+                                    Set deletableIndexes = New Collection
+
+                                    For i = iDPage.AllPageItems.Count To 1 Step -1
+                                        If iDPage.AllPageItems.Item(i).ItemLayer.Name = LSPLayer Then
+                                            deletableIndexes.Add i
+                                        End If
+                                    Next
+
+                                    Dim idx As Variant
+                                    For Each idx In deletableIndexes
+                                        On Error Resume Next
+                                        iDPage.AllPageItems.Item(idx).Delete
+                                        On Error GoTo 0
+                                    Next
+
+                                    
+                                End If 'userResponse = vbNo
+                            End If 'hasLayerItems
+                        End If 'layerExists
+                    End If 'oneFileFeature = True
         z = x - FirstPage + 2
         For Y = 1 To cPUnits(z).count
                 
-             If Not pageChecked Then 'check if page has old content
-               If iDPage.Rectangles.Count > 0 Or iDPage.TextFrames.Count > 0 Then
-                    Dim userResponse As VbMsgBoxResult
-                    userResponse = MsgBox("Page " & x & " already has content. Do you wish to overwrite it?", vbYesNo + vbQuestion, "Confirm Overwrite")
-
-                    If userResponse = vbNo Then
-                        Debug.Print "Skipped page " & x
-                        Exit For
-                    Else
-                        ' Delete all rectangles
-                        Do While iDPage.Rectangles.Count > 0
-                            iDPage.Rectangles(1).Delete
-                        Loop
-
-                        ' Delete all text frames
-                        Do While iDPage.TextFrames.Count > 0
-                            iDPage.TextFrames(1).Delete
-                        Loop
-                    End If
-                End If
-                pageChecked = True ' Mark that we've already checked this page
-            End If
+            
             ' Create a rectangle for each unit
             Set vc = cPUnits(z).item(Y)
             myY1 = cpUnitsPositions(z).item(Y)(1)
@@ -1868,7 +1894,8 @@ Sub NewBuildLayout()
             End If 'If is Not an Article
 
         Next Y
-                                    'Debug.Print cPUnits(x).Count
+       'Debug.Print cPUnits(x).Count
+    NextPage: 
     Next x
 
 Dim maxpage As Integer
