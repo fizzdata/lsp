@@ -1512,17 +1512,17 @@ Sub NewBuildLayout()
                         Next
 
                         If layerExists Then
-                            Dim hasLayerItems As Boolean
-                            hasLayerItems = False
+                            Dim HasLspItems As Boolean
+                            HasLspItems = False
 
                             For Each item In iDPage.AllPageItems
                                 If item.ItemLayer.Name = LSPLayer Then
-                                    hasLayerItems = True
+                                    HasLspItems = True
                                     Exit For
                                 End If
                             Next
 
-                            If hasLayerItems Then
+                            If HasLspItems Then
                                 userResponse = MsgBox("Page " & x & " has content on layer '" & LSPLayer & "'. Do you wish to overwrite it?", vbYesNo + vbQuestion, "Confirm Overwrite")
                                 If userResponse = vbNo Then
                                     Debug.Print "Skipped page " & x
@@ -1546,7 +1546,24 @@ Sub NewBuildLayout()
 
                                     
                                 End If 'userResponse = vbNo
-                            End If 'hasLayerItems
+
+                                    Dim nextPage As Object
+                                    If x = iDDoc.Pages.count Then
+                                        ' We're on the last page — create a new one
+                                        Set nextPage = iDDoc.Pages.Add
+                                    Else
+                                        Set nextPage = iDDoc.Pages.item(x + 1)
+                                    End If
+                                    
+                            End If 'HasLspItems
+
+
+                             ' Move non-LSP items
+                            For Each item In iDPage.AllPageItems
+                                If item.ItemLayer.Name <> LSPLayer Then
+                                    item.MoveTo nextPage
+                                End If
+                            Next
                         End If 'layerExists
                     End If 'oneFileFeature = True
         z = x - FirstPage + 2
